@@ -17,17 +17,24 @@ def solve_edges(grid, colClues, rowClues):
         print(f"row {i}: " ,end="")
         # For now, we assume 0 index
         # Later on, we can add a check to see if it's the current leftmost clue
-        if solved_grid[i][0] == 1:
-            print(f"need to solve / ", end="")
-            # TODO: Check if its neighbor is unsolved
-            # So we assume the clue to be used is the first clue
-            clue = rowClues[i][0]
-            print(f"clue: {clue}")
-            for j in range(1, clue):
-                solved_grid[i][j] = 1
-            if clue+1 < gridLength: solved_grid[i][clue] = 0
-        else:
-            print(f"nope, does not start with a clue")
+        for j in range(gridLength):
+            if solved_grid[i][j] == "-":
+                break
+            if solved_grid[i][j] == 0:
+                continue
+            if solved_grid[i][j] == 1:
+                print(f"j = {j}")
+                print(f"need to solve / ", end="")
+                # TODO: Check if its neighbor is unsolved
+                # So we assume the clue to be used is the first clue
+                clue = rowClues[i][0]
+                print(f"clue: {clue}")
+                for clueLen in range(1, clue):
+                    solved_grid[i][j+clueLen] = 1
+                if j+clue+1 < gridLength: solved_grid[i][j+clue] = 0
+                break
+            else:
+                print(f"nope, does not start with a clue")
     
     solved_grid = grid_clean_up(solved_grid, colClues, rowClues)
 
@@ -188,7 +195,8 @@ def solve(grid, colClues, rowClues):
     # solve edges
     solved_grid = solve_edges(solved_grid, colClues, rowClues)
 
-    # solved_grid = grid_clean_up(solved_grid, colClues, rowClues)
+    # fill partial clues
+
 
 
     return display_grid(solved_grid)
