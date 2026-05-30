@@ -56,7 +56,7 @@ def solve_edges(grid, colClues, rowClues):
     return solved_grid;
 
 
-def isLineClueCompleted(line, clues):
+def is_line_complete(line, clues):
     # can add early exit - if no dashes
 
     # treat dashes as spaces
@@ -99,14 +99,14 @@ def grid_clean_up(grid, colClues, rowClues):
     # Check if row or column satisfies its clues
     for i in range(gridLength):
         # Clean rows
-        # if isLineClueCompleted(solved_grid[i], rowClues[i]):
+        # if is_line_complete(solved_grid[i], rowClues[i]):
         #     for col in range(0, gridLength):
         #         if solved_grid[i][col] == "-":
         #             solved_grid[i][col] = 0
         
         # Clean columns
         print(f"col {i+1}")
-        if isLineClueCompleted([row[i] for row in solved_grid], colClues[i]):
+        if is_line_complete([row[i] for row in solved_grid], colClues[i]):
             for row in range(0, gridLength):
                 if solved_grid[row][i] == "-":
                     solved_grid[row][i] = 0
