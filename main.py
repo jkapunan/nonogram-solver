@@ -11,9 +11,6 @@ def solve_edges(grid, colClues, rowClues):
     solved_grid = grid.copy()
     gridLength = len(grid)
 
-    colIndex = 0
-    rowIndex = 0
-
     # TODO: Make this recursive ?
     # Leftmost (Col = 0)
     for i in range(gridLength):
@@ -30,10 +27,10 @@ def solve_edges(grid, colClues, rowClues):
                 solved_grid[i][j] = 1
             if clue+1 < gridLength: solved_grid[i][clue] = 0
         else:
-            print(f"nope")
+            print(f"nope, does not start with a clue")
+    
+    solved_grid = grid_clean_up(solved_grid, colClues, rowClues)
 
-    colIndex = 0
-    rowIndex = 0
     # Topmost (Row = 0)
     for i in range(gridLength):
         print(f"col {i}: " ,end="")
@@ -51,7 +48,51 @@ def solve_edges(grid, colClues, rowClues):
         else:
             print(f"nope")
 
-    # Bottommost row
+    solved_grid = grid_clean_up(solved_grid, colClues, rowClues)
+
+    print("solving rightmost")
+    # Rightmost (Col = gridLength)
+    for i in range(gridLength):
+        print(f"row {i}: " ,end="")
+        # For now, we assume gridLength-1 index
+        # Later on, we can add a check to see if it's the current leftmost clue
+        if solved_grid[i][gridLength-1] == 1:
+            print(f"need to solve / ", end="")
+            # TODO: Check if its neighbor is unsolved
+            # So we assume the clue to be used is the first clue
+            clue = rowClues[i][-1]
+            print(f"clue: {clue}")
+            for j in range(1, clue):
+                print(f"solved_grid[{i}][{gridLength-j}]")
+                solved_grid[i][gridLength-j] = 1
+            print(f"add ending 0 ")
+            print(f"checking solved_grid[i][gridLength-clue-1]:")
+            print(f"col number: {gridLength-clue-1}")
+            if gridLength-clue-1 >= 0: solved_grid[i][gridLength-clue-1] = 0
+        else:
+            print(f"nope, does not start with a clue")
+
+    solved_grid = grid_clean_up(solved_grid, colClues, rowClues)
+
+    print("solving bottommost")
+    # Bottommost (Row = gridLength)
+    for i in range(gridLength):
+        print(f"col {i}: " ,end="")
+        # For now, we assume 0 index
+        # Later on, we can add a check to see if it's the current leftmost clue
+        if solved_grid[gridLength-1][i] == 1:
+            print(f"need to solve / ", end="")
+            # TODO: Check if its neighbor is unsolved
+            # So we assume the clue to be used is the first clue
+            clue = colClues[i][-1]
+            print(f"clue: {clue}")
+            for j in range(1, clue):
+                solved_grid[gridLength-j][i] = 1
+            if gridLength-clue-1 >= 0: solved_grid[gridLength-clue-1][i] = 0
+        else:
+            print(f"nope")
+
+    solved_grid = grid_clean_up(solved_grid, colClues, rowClues)
 
     return solved_grid;
 
@@ -63,32 +104,27 @@ def is_line_complete(line, clues):
     currClueValue = 0
     currClueIndex = -1
 
-    for (index, i) in enumerate(line):
-        print(f"index: {index} | ", end="")
-        print(f"i: {i}")
-        print(f"currClueIndex: {currClueIndex}")
-        print(f"currClueValue: {currClueValue}")
-        if currClueValue == 0 and i != 1:
+    for (index, cellValue) in enumerate(line):
+        isLastCell = index == len(line)-1
+        if currClueValue == 0 and cellValue != 1:
             continue;
-        if i == 1:
-            if currClueValue == 0 or index == len(line)-1:
-                currClueIndex = currClueIndex + 1
+
+        if cellValue == 1:
             currClueValue = currClueValue + 1
 
+            if isLastCell: currClueIndex = currClueIndex + 1
             continue;
-        if i != 1:
-            print(f"should fulfill {clues[currClueIndex]}")
+
+        if cellValue != 1:
+            currClueIndex = currClueIndex + 1
             if currClueValue != clues[currClueIndex]:
                 return 0
             else:
-                if index == len(line)-1:
-                    currClueIndex = currClueIndex + 1
-    
-    if currClueIndex == len(clues) and currClueValue == 0: return 1
-    if currClueIndex != len(clues): return 0
-    if currClueValue != clues[currClueIndex-1]: return 0
+                currClueValue = 0
 
-    print("clear")
+    if currClueIndex != len(clues)-1: return 0
+    if currClueValue != 0 and currClueValue != clues[currClueIndex]: return 0
+
     return 1
 
 def grid_clean_up(grid, colClues, rowClues):
@@ -99,13 +135,12 @@ def grid_clean_up(grid, colClues, rowClues):
     # Check if row or column satisfies its clues
     for i in range(gridLength):
         # Clean rows
-        # if is_line_complete(solved_grid[i], rowClues[i]):
-        #     for col in range(0, gridLength):
-        #         if solved_grid[i][col] == "-":
-        #             solved_grid[i][col] = 0
-        
+        if is_line_complete(solved_grid[i], rowClues[i]):
+            for col in range(0, gridLength):
+                if solved_grid[i][col] == "-":
+                    solved_grid[i][col] = 0
+
         # Clean columns
-        print(f"col {i+1}")
         if is_line_complete([row[i] for row in solved_grid], colClues[i]):
             for row in range(0, gridLength):
                 if solved_grid[row][i] == "-":
@@ -153,7 +188,7 @@ def solve(grid, colClues, rowClues):
     # solve edges
     solved_grid = solve_edges(solved_grid, colClues, rowClues)
 
-    solved_grid = grid_clean_up(solved_grid, colClues, rowClues)
+    # solved_grid = grid_clean_up(solved_grid, colClues, rowClues)
 
 
     return display_grid(solved_grid)
